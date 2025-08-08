@@ -9,7 +9,7 @@ const Navbar = () => {
     const [menuOpen, setMenuOpen] = useState(false);
 
     return (
-        <nav className='bg-white'>
+        <nav className='bg-white relative'>
             {/* Deskto Design */}
             <div className='hidden container mx-auto lg:flex justify-between items-center py-6 px-2'>
                 {/* Left side */}
@@ -50,7 +50,7 @@ const Navbar = () => {
 
             {/* Mobile menu */}
             <div
-                className={`bg-black text-white p-4 transform transition-transform duration-300 ease-in-out lg:hidden ${menuOpen ? 'translate-x-0' : '-translate-x-full'
+                className={`absolute w-full bg-black text-white p-4 transform transition-transform duration-300 ease-in-out lg:hidden ${menuOpen ? 'translate-x-0' : '-translate-x-full'
                     }`}
             >
                 <NavItems />
