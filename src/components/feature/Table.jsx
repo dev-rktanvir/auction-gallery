@@ -1,8 +1,7 @@
 import React, { use } from 'react';
 import { FaRegHeart } from 'react-icons/fa';
 
-const Table = ({ bidPromiss }) => {
-    const bids = use(bidPromiss);
+const Table = ({ bids, handleLoveIcon, loveClr }) => {
 
     return (
         <div className="overflow-x-auto rounded-3xl">
@@ -41,8 +40,9 @@ const Table = ({ bidPromiss }) => {
 
                             {/* Bid Now */}
                             <td className="p-3">
-                                <button>
-                                    <FaRegHeart className='ml-5' size={24} />
+                                <button onClick={() => handleLoveIcon(bid)}
+                                    disabled={loveClr.includes(bid.id)}>
+                                    <FaRegHeart className={`ml-5 ${loveClr.includes(bid.id) ? 'text-red-500 cursor-not-allowed' : ''}`} size={24} />
                                 </button>
                             </td>
                         </tr>

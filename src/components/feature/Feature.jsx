@@ -1,14 +1,58 @@
-import React, { Suspense } from 'react';
+import React, { Suspense, useEffect, useState } from 'react';
 import Table from './Table';
-import { FaRegHeart } from 'react-icons/fa';
-
-const fetchBids = async () => {
-    const res = await fetch('bidData.json');
-    return res.json();
-}
+import FavItems from './FavItems';
+import { toast } from 'react-toastify';
 
 const Feature = () => {
-    const bidPromiss = fetchBids();
+    const [bids, setBids] = useState([]);
+    const [favItems, setFavItems] = useState([]);
+    const [amount, setAmount] = useState(0);
+    const [loveClr, setLoveClr] = useState([]);
+
+    useEffect(() => {
+        const loadBids = async () => {
+            const res = await fetch('bidData.json');
+            const data = await res.json();
+            setBids(data);
+        };
+        loadBids();
+    }, [])
+
+    const handleLoveIcon = (bid) => {
+        const newFavItems = [...favItems, bid];
+        setFavItems(newFavItems);
+        handleBidsAmount(bid.currentBidPrice);
+        const newLoveClr = [...loveClr, bid.id];
+        setLoveClr(newLoveClr);
+
+        // Show toast
+        toast.success(`${bid.title} added to favorites!`, {
+            position: 'top-right',
+            autoClose: 2000,
+        });
+    }
+
+    const handleCrossIcon = (item) => {
+        const remainingItems = favItems.filter(fav => fav.id !== item.id);
+        setFavItems(remainingItems);
+
+        // Update total amount
+        setAmount(amount - item.currentBidPrice);
+
+        // Remove from loveClr list as well
+        setLoveClr(loveClr.filter(id => id !== item.id));
+
+        // Toast message
+        toast.error(`${item.title} removed from favorites`, {
+            position: 'top-right',
+            autoClose: 2000,
+        });
+    };
+
+    const handleBidsAmount = (amt) => {
+        const newAmount = amount + amt;
+        setAmount(newAmount);
+    }
 
     return (
         <div className='bg-[#EBF0F5] py-12 lg:py-24'>
@@ -19,31 +63,16 @@ const Feature = () => {
 
             <div className='container mx-auto flex flex-col lg:flex-row gap-5 items-start px-4'>
                 {/* left side */}
-                <div className='w-full lg:w-[70%] bg-white rounded-3xl'>
-                    <Suspense fallback={<p className='p-5'>Bids are loading...</p>}>
-                        <Table bidPromiss={bidPromiss}></Table>
-                    </Suspense>
+                <div className='w-full lg:w-[72%] bg-white rounded-3xl'>
+                    <Table bids={bids}
+                        handleLoveIcon={handleLoveIcon}
+                        loveClr={loveClr}
+                    >
+                    </Table>
                 </div>
 
                 {/* right side */}
-                <div className='w-full lg:w-[30%] bg-white rounded-3xl'>
-                    <div className='flex gap-4 items-center justify-center p-8'>
-                        <FaRegHeart className='ml-5' size={24} />
-                        <p className='font-medium text-2xl'>Favorite Items</p>
-                    </div>
-
-                    <div className='text-center border-y border-[#DCE5F3] py-12'>
-                        <h2 className='text-2xl'>No favorites yet</h2>
-                        <p className='text-lg mt-6 px-4 sm:px-20'>
-                            Click the heart icon on any item to add it to your favorites
-                        </p>
-                    </div>
-
-                    <div className='flex items-center justify-between p-8 text-2xl'>
-                        <p>Total bids Amount</p>
-                        <p>$0000</p>
-                    </div>
-                </div>
+                <FavItems favItems={favItems} amount={amount} handleCrossIcon={handleCrossIcon}></FavItems>
             </div>
         </div>
     );
